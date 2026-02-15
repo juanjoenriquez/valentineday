@@ -29,7 +29,7 @@ body{
     radial-gradient(900px 650px at 18% 12%, rgba(255,255,255,.55), transparent 62%),
     radial-gradient(900px 650px at 78% 18%, rgba(255,255,255,.35), transparent 62%),
     linear-gradient(145deg, var(--bg1), var(--bg2));
-  overflow:hidden; /* scroll interno */
+  overflow:hidden;
   color: var(--ink);
 }
 
@@ -56,7 +56,7 @@ canvas{
   position:absolute;
   inset: 0;
   z-index: 3;
-  overflow-y:auto;                 /* ✅ scroll iPhone */
+  overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   padding: 22px;
 }
@@ -203,12 +203,13 @@ h1{
   box-shadow: 0 10px 22px rgba(0,0,0,.08);
   padding: 14px;
   cursor:pointer;
-  min-height: 98px;
+  min-height: 104px;
   position:relative;
   overflow:hidden;
-  transition: transform .18s ease, filter .18s ease;
+  transition: transform .18s ease, filter .18s ease, opacity .18s ease;
 }
 .cardMini:hover{ transform: translateY(-2px); }
+
 .num{
   font-weight: 1100;
   font-size: 18px;
@@ -228,11 +229,21 @@ h1{
   opacity:.7;
   pointer-events:none;
 }
+
+/* estados */
 .cardMini.open{
-  background: rgba(255,255,255,.80);
+  background: rgba(255,255,255,.82);
 }
-.cardMini.open .lock{
-  display:none;
+.cardMini.open .lock{ display:none; }
+
+.cardMini.disabled{
+  opacity: .55;
+  filter: grayscale(.15);
+  cursor: not-allowed;
+}
+.cardMini.next{
+  outline: 2px solid rgba(255,45,85,.28);
+  box-shadow: 0 10px 22px rgba(0,0,0,.08), 0 0 0 6px rgba(255,45,85,.10);
 }
 
 .modalWrap{
@@ -341,16 +352,14 @@ h1{
 
       <div class="badges">
         <div class="badge">💘 14 de Febrero</div>
-        <div class="badge" id="badgeRight">Toca una carta</div>
+        <div class="badge" id="badgeRight">Empieza por la 1</div>
       </div>
 
       <h1>Amor, te dejé 14 cartas</h1>
-      <div class="sub">
-No son promesas.
-Son escenas.
-Son pedacitos de verdad.
-Tócalas sin apuro… y cuando llegues al final, quédate un momento ahí.
-      </div>
+      <div class="sub">Se abren en orden, como un ritual.
+Sin saltos.
+Sin prisa.
+Solo tú… y esto.</div>
 
       <div class="hero">
         <div class="pillRow">
@@ -370,10 +379,8 @@ Tócalas sin apuro… y cuando llegues al final, quédate un momento ahí.
       <div class="footer">
         <div class="panel">
           <div style="font-weight:1100; color:rgba(0,0,0,.72);">Carta final</div>
-          <div class="note">
-Se desbloquea cuando abras las 14 cartas.
-Tip: toca la pantalla para que caigan corazones 💗
-          </div>
+          <div class="note">Solo aparece cuando abras la carta 14.
+Tip: toca la pantalla para que caigan corazones 💗</div>
         </div>
       </div>
 
@@ -394,7 +401,7 @@ Tip: toca la pantalla para que caigan corazones 💗
 </div>
 
 <script>
-/* ===== Textos (casi poemas) ===== */
+/* ===== Cartas (casi poemas) ===== */
 const POEMS = [
 `Me gustas cuando eres calma,
 y cuando eres tormenta.
@@ -493,8 +500,8 @@ const modalTitle = document.getElementById("modalTitle");
 const modalText = document.getElementById("modalText");
 const modalSign = document.getElementById("modalSign");
 
+let nextIndex = 0;          // la única carta habilitada es nextIndex
 let opened = new Set();
-let nextIndex = 0;
 
 function showToast(text){
   toast.textContent = text;
@@ -503,10 +510,10 @@ function showToast(text){
   showToast._t = setTimeout(()=>toast.classList.remove("show"), 1400);
 }
 
-function openModal(title, text){
+function openModal(title, text, isFinal=false){
   modalTitle.textContent = title;
   modalText.textContent = text;
-  modalSign.textContent = "— Juanjo";
+  modalSign.textContent = isFinal ? "" : "— Juanjo";
   modalWrap.classList.add("show");
   modalWrap.setAttribute("aria-hidden", "false");
 }
@@ -519,65 +526,100 @@ function closeModal(){
 document.getElementById("closeModal").addEventListener("click", closeModal);
 modalWrap.addEventListener("click", (e)=>{ if(e.target === modalWrap) closeModal(); });
 
+function updateBadge(){
+  if(nextIndex >= 14){
+    badgeRight.textContent = "14/14 abiertas";
+  }else{
+    badgeRight.textContent = `Siguiente: ${nextIndex+1}/14`;
+  }
+}
+
 function render(){
   grid.innerHTML = "";
   for(let i=0;i<14;i++){
     const isOpen = opened.has(i);
+    const isNext = i === nextIndex && !isOpen;
+    const isLocked = i > nextIndex && !isOpen;
+
     const div = document.createElement("div");
-    div.className = "cardMini" + (isOpen ? " open" : "");
+    div.className = "cardMini"
+      + (isOpen ? " open" : "")
+      + (isNext ? " next" : "")
+      + (isLocked ? " disabled" : "");
+
     div.innerHTML = `
       <div class="shine"></div>
       <div class="num">Carta ${i+1}</div>
-      <div class="lock">${isOpen ? "Abierta 💗" : "Tócame despacio"}</div>
+      <div class="lock">${
+        isOpen ? "Abierta 💗"
+        : isNext ? "Tócame. Es tu turno."
+        : "Aún no. Ve en orden."
+      }</div>
     `;
+
     div.addEventListener("click", ()=>{
-      if(!isOpen){
-        opened.add(i);
-        nextIndex = Math.max(nextIndex, i+1);
-        badgeRight.textContent = `${opened.size}/14 abiertas`;
-        burstAtCenter(18);
-        showToast("💌 Abierta");
-        render();
+      if(i < nextIndex && isOpen){
+        // reabrir carta ya abierta
+        openModal(`Carta ${i+1}`, POEMS[i]);
+        burstAtCenter(10);
+        return;
       }
+
+      if(i !== nextIndex){
+        showToast(`Primero abre la carta ${nextIndex+1} 💘`);
+        burstAtCenter(8);
+        return;
+      }
+
+      // abrir la carta correcta
+      opened.add(i);
       openModal(`Carta ${i+1}`, POEMS[i]);
-      if(opened.size === 14){
-        setTimeout(()=>{
-          modalTitle.textContent = "Carta final";
-          modalText.textContent = FINAL_LETTER;
-          modalSign.textContent = "";
-        }, 450);
+      burstAtCenter(22);
+
+      nextIndex++;
+
+      if(nextIndex === 14){
+        updateBadge();
+        render();
+        showToast("💌 Llegaste al final");
+        // muestra carta final al cerrar, o a los segundos
+        setTimeout(()=> openModal("Carta final", FINAL_LETTER, true), 650);
+        return;
       }
+
+      updateBadge();
+      render();
+      showToast(`Siguiente: carta ${nextIndex+1}`);
     });
+
     grid.appendChild(div);
   }
 }
+updateBadge();
 render();
 
 document.getElementById("openNext").addEventListener("click", ()=>{
   if(nextIndex >= 14){
-    showToast("Ya las abriste todas 💗");
-    modalTitle.textContent = "Carta final";
-    modalText.textContent = FINAL_LETTER;
-    modalSign.textContent = "";
-    modalWrap.classList.add("show");
-    modalWrap.setAttribute("aria-hidden", "false");
+    openModal("Carta final", FINAL_LETTER, true);
+    showToast("💗");
     return;
   }
+  // simula click en la siguiente
   const idx = nextIndex;
   opened.add(idx);
-  nextIndex++;
-  badgeRight.textContent = `${opened.size}/14 abiertas`;
-  showToast(`💌 Carta ${idx+1}`);
-  burstAtCenter(24);
-  render();
   openModal(`Carta ${idx+1}`, POEMS[idx]);
-  if(opened.size === 14){
-    setTimeout(()=>{
-      modalTitle.textContent = "Carta final";
-      modalText.textContent = FINAL_LETTER;
-      modalSign.textContent = "";
-    }, 450);
+  burstAtCenter(24);
+  nextIndex++;
+  if(nextIndex === 14){
+    updateBadge();
+    render();
+    showToast("💌 Llegaste al final");
+    setTimeout(()=> openModal("Carta final", FINAL_LETTER, true), 650);
+    return;
   }
+  updateBadge();
+  render();
+  showToast(`Siguiente: carta ${nextIndex+1}`);
 });
 
 /* ===== Hearts FX ===== */
@@ -689,8 +731,7 @@ document.addEventListener("click", (e)=>{
   burst(e.clientX - r.left, e.clientY - r.top, 14);
 });
 
-showToast("💘 Abre una carta");
+showToast("Empieza por la carta 1 💘");
 </script>
 </body>
 </html>
-
