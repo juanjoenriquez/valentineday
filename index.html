@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>14 cartas — Juanjo 💘 Kriz</title>
+
+<style>
+:root{
+  --bg1:#f7d4dc;
+  --bg2:#f3c7cf;
+  --glass1: rgba(255,255,255,.62);
+  --glass2: rgba(255,255,255,.34);
+  --ink: rgba(0,0,0,.82);
+  --muted: rgba(0,0,0,.58);
+  --shadow: 0 18px 55px rgba(0,0,0,.16);
+  --shadow2: 0 10px 28px rgba(0,0,0,.10);
+  --accent:#ff2d55;
+  --accent2:#ff7aa2;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(900px 650px at 18% 12%, rgba(255,255,255,.55), transparent 62%),
+    radial-gradient(900px 650px at 78% 18%, rgba(255,255,255,.35), transparent 62%),
+    linear-gradient(145deg, var(--bg1), var(--bg2));
+  overflow:hidden; /* scroll interno */
+  color: var(--ink);
+}
+
+.frame{
+  position:relative;
+  width:min(980px, 96vw);
+  height:100vh;
+  margin:auto;
+  border-radius: 26px;
+  overflow:hidden;
+  box-shadow: var(--shadow);
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  pointer-events:none;
+}
+
+.screen{
+  position:absolute;
+  inset: 0;
+  z-index: 3;
+  overflow-y:auto;                 /* ✅ scroll iPhone */
+  -webkit-overflow-scrolling:touch;
+  padding: 22px;
+}
+
+.card{
+  width:min(900px, 92vw);
+  margin: 0 auto;
+  border-radius: 26px;
+  background: linear-gradient(180deg, var(--glass1), var(--glass2));
+  border: 1px solid rgba(255,255,255,.70);
+  box-shadow: var(--shadow2);
+  padding: 22px;
+  max-height: calc(100vh - 44px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position:relative;
+}
+
+/* glow sutil */
+.card:before{
+  content:"";
+  position:absolute; inset:-40px;
+  background:
+    radial-gradient(520px 340px at 30% 22%, rgba(255,45,85,.18), transparent 60%),
+    radial-gradient(520px 340px at 70% 70%, rgba(255,122,162,.16), transparent 62%);
+  filter: blur(10px);
+  opacity:.85;
+  animation: breathe 6.6s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes breathe{
+  0%,100%{ transform: translateY(0) scale(1); opacity:.82; }
+  50%{ transform: translateY(-6px) scale(1.02); opacity:.92; }
+}
+
+.badges{
+  display:flex; justify-content:space-between; gap:10px; align-items:center;
+  margin-bottom: 10px;
+  position:relative; z-index:2;
+}
+.badge{
+  display:inline-flex; gap:8px; align-items:center;
+  padding:10px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,.66);
+  border: 1px solid rgba(255,255,255,.75);
+  box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  font-size: 13px;
+  font-weight: 950;
+  color: rgba(0,0,0,.62);
+}
+
+h1{
+  margin: 8px 0 8px;
+  font-size: clamp(22px, 3.2vw, 34px);
+  font-weight: 1100;
+  text-align:center;
+  letter-spacing:.2px;
+  position:relative; z-index:2;
+}
+.sub{
+  margin: 0 0 14px;
+  text-align:center;
+  color: var(--muted);
+  font-weight: 850;
+  line-height:1.35;
+  position:relative; z-index:2;
+  white-space:pre-wrap;
+}
+
+.hero{
+  display:grid;
+  place-items:center;
+  gap: 10px;
+  padding: 10px 0 6px;
+  position:relative; z-index:2;
+}
+
+.pillRow{
+  display:flex;
+  gap: 10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.pill{
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  font-weight: 950;
+  color: rgba(0,0,0,.68);
+  font-size: 13px;
+}
+
+.cta{
+  margin-top: 8px;
+  display:flex;
+  justify-content:center;
+  gap: 10px;
+  flex-wrap:wrap;
+}
+.btn{
+  border:0;
+  cursor:pointer;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 1000;
+  font-size: 14px;
+  box-shadow: 0 14px 30px rgba(0,0,0,.12);
+  -webkit-tap-highlight-color: transparent;
+  user-select:none;
+  touch-action: manipulation;
+}
+.btn:active{ transform: scale(.98); }
+.btnPrimary{
+  background: linear-gradient(180deg, rgba(255,122,162,.95), rgba(255,45,85,.95));
+  color: rgba(255,255,255,.96);
+}
+.btnSoft{
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(255,255,255,.78);
+  color: rgba(0,0,0,.68);
+}
+
+.grid{
+  margin-top: 16px;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  position:relative; z-index:2;
+}
+@media (max-width: 860px){
+  .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+.cardMini{
+  border-radius: 18px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  padding: 14px;
+  cursor:pointer;
+  min-height: 98px;
+  position:relative;
+  overflow:hidden;
+  transition: transform .18s ease, filter .18s ease;
+}
+.cardMini:hover{ transform: translateY(-2px); }
+.num{
+  font-weight: 1100;
+  font-size: 18px;
+}
+.lock{
+  font-weight: 950;
+  font-size: 12px;
+  color: rgba(0,0,0,.56);
+  margin-top: 8px;
+  line-height:1.25;
+}
+.cardMini .shine{
+  position:absolute;
+  inset:-40px;
+  background: radial-gradient(320px 220px at 20% 15%, rgba(255,255,255,.62), transparent 58%);
+  transform: rotate(8deg);
+  opacity:.7;
+  pointer-events:none;
+}
+.cardMini.open{
+  background: rgba(255,255,255,.80);
+}
+.cardMini.open .lock{
+  display:none;
+}
+
+.modalWrap{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  z-index: 20;
+  background: rgba(0,0,0,.28);
+  padding: 18px;
+}
+.modalWrap.show{ display:grid; }
+
+.modal{
+  width:min(740px, 94vw);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.64));
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  position:relative;
+}
+.modal h2{
+  margin: 2px 0 10px;
+  font-size: 20px;
+  font-weight: 1100;
+}
+.modal p{
+  margin:0;
+  color: rgba(0,0,0,.74);
+  line-height:1.62;
+  font-weight: 780;
+  white-space: pre-wrap;
+}
+.modal .close{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  border:0;
+  cursor:pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 10px 22px rgba(0,0,0,.08);
+  font-weight: 1100;
+}
+
+.footer{
+  margin-top: 16px;
+  position:relative;
+  z-index:2;
+}
+.panel{
+  border-radius: 22px;
+  padding: 16px;
+  background: rgba(255,255,255,.58);
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+}
+
+.signature{
+  margin-top: 10px;
+  font-weight: 1000;
+  color: rgba(0,0,0,.70);
+}
+.note{
+  margin-top: 10px;
+  color: rgba(0,0,0,.56);
+  font-weight: 850;
+  font-size: 12px;
+  line-height:1.35;
+}
+
+.toast{
+  position: sticky;
+  bottom: 8px;
+  margin: 14px auto 0;
+  width: fit-content;
+  max-width: 92%;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 12px 30px rgba(0,0,0,.12);
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-weight: 950;
+  font-size: 13px;
+  color: rgba(0,0,0,.68);
+  opacity:0;
+  transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease;
+  text-align:center;
+  z-index: 9;
+}
+.toast.show{ opacity:1; transform: translateY(0); }
+</style>
+</head>
+
+<body>
+<div class="frame">
+  <canvas id="fx"></canvas>
+
+  <div class="screen">
+    <div class="card">
+
+      <div class="badges">
+        <div class="badge">💘 14 de Febrero</div>
+        <div class="badge" id="badgeRight">Toca una carta</div>
+      </div>
+
+      <h1>Amor, te dejé 14 cartas</h1>
+      <div class="sub">
+No son promesas.
+Son escenas.
+Son pedacitos de verdad.
+Tócalas sin apuro… y cuando llegues al final, quédate un momento ahí.
+      </div>
+
+      <div class="hero">
+        <div class="pillRow">
+          <div class="pill">De: Juanjo</div>
+          <div class="pill">Para: Kriz</div>
+          <div class="pill">En voz bajita 💗</div>
+        </div>
+
+        <div class="cta">
+          <button class="btn btnPrimary" id="openNext">Abrir la siguiente</button>
+          <button class="btn btnSoft" id="burstBtn">💥 Corazones</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="footer">
+        <div class="panel">
+          <div style="font-weight:1100; color:rgba(0,0,0,.72);">Carta final</div>
+          <div class="note">
+Se desbloquea cuando abras las 14 cartas.
+Tip: toca la pantalla para que caigan corazones 💗
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">💌</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modalWrap" id="modalWrap" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="close" id="closeModal" aria-label="Cerrar">✕</button>
+    <h2 id="modalTitle">Carta</h2>
+    <p id="modalText"></p>
+    <div class="signature" id="modalSign">— Juanjo</div>
+  </div>
+</div>
+
+<script>
+/* ===== Textos (casi poemas) ===== */
+const POEMS = [
+`Me gustas cuando eres calma,
+y cuando eres tormenta.
+Porque igual me enseñas
+a quedarme.`,
+`Tu nombre me suena a hogar.
+Y no por costumbre,
+sino por esa paz
+que no se finge.`,
+`Hay días en los que no digo nada,
+pero por dentro te elijo
+con una claridad
+que asusta.`,
+`Si el mundo se pone ruidoso,
+tú eres mi pausa.
+Mi “respira”.
+Mi “aquí estamos”.`,
+`Tu risa no es un sonido.
+Es una puerta
+que se abre
+en mi pecho.`,
+`No te amo por perfecta.
+Te amo por real.
+Por humana.
+Por valiente.`,
+`Tu mirada tiene algo:
+no juzga,
+pero entiende.
+Y eso… salva.`,
+`A veces pienso que el amor
+es esto:
+dos personas
+que se cuidan sin espectáculo.`,
+`Si te cansas,
+no te empujo.
+Te acompaño.
+Y cuando puedas,
+caminamos otra vez.`,
+`Hay detalles tuyos
+que nadie ve.
+Yo sí.
+Y por eso,
+me quedo.`,
+`Contigo aprendí
+que querer también es trabajo…
+pero del bonito:
+el que construye.`,
+`Cuando dudo,
+tu existencia me ordena.
+Como una luz suave
+en un cuarto oscuro.`,
+`No necesito que el día sea perfecto.
+Te necesito a ti,
+con tus días buenos…
+y los difíciles.`,
+`Te elijo
+cuando es fácil.
+Te elijo
+cuando no.
+Te elijo,
+porque sí.`
+];
+
+const FINAL_LETTER =
+`Kriz,
+
+Hoy no quería regalarte una frase.
+Quería dejarte un lugar.
+
+Un lugar donde se note que te pienso,
+que te miro en serio,
+que te valoro sin apuro.
+
+No sé prometerte un cuento perfecto.
+Sí sé algo más honesto:
+cuando te veo, se me acomodan las prioridades.
+
+Si un día te faltan fuerzas, yo pongo las mías.
+Si un día te pesa el mundo, te lo bajo del hombro.
+Y si un día dudas de ti, yo te recuerdo quién eres.
+
+Te amo.
+Y me gusta amarte así:
+con calma,
+con intención,
+con verdad.
+
+— Juanjo 💗`;
+
+/* ===== UI ===== */
+const grid = document.getElementById("grid");
+const badgeRight = document.getElementById("badgeRight");
+const toast = document.getElementById("toast");
+const modalWrap = document.getElementById("modalWrap");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
+const modalSign = document.getElementById("modalSign");
+
+let opened = new Set();
+let nextIndex = 0;
+
+function showToast(text){
+  toast.textContent = text;
+  toast.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toast.classList.remove("show"), 1400);
+}
+
+function openModal(title, text){
+  modalTitle.textContent = title;
+  modalText.textContent = text;
+  modalSign.textContent = "— Juanjo";
+  modalWrap.classList.add("show");
+  modalWrap.setAttribute("aria-hidden", "false");
+}
+
+function closeModal(){
+  modalWrap.classList.remove("show");
+  modalWrap.setAttribute("aria-hidden", "true");
+}
+
+document.getElementById("closeModal").addEventListener("click", closeModal);
+modalWrap.addEventListener("click", (e)=>{ if(e.target === modalWrap) closeModal(); });
+
+function render(){
+  grid.innerHTML = "";
+  for(let i=0;i<14;i++){
+    const isOpen = opened.has(i);
+    const div = document.createElement("div");
+    div.className = "cardMini" + (isOpen ? " open" : "");
+    div.innerHTML = `
+      <div class="shine"></div>
+      <div class="num">Carta ${i+1}</div>
+      <div class="lock">${isOpen ? "Abierta 💗" : "Tócame despacio"}</div>
+    `;
+    div.addEventListener("click", ()=>{
+      if(!isOpen){
+        opened.add(i);
+        nextIndex = Math.max(nextIndex, i+1);
+        badgeRight.textContent = `${opened.size}/14 abiertas`;
+        burstAtCenter(18);
+        showToast("💌 Abierta");
+        render();
+      }
+      openModal(`Carta ${i+1}`, POEMS[i]);
+      if(opened.size === 14){
+        setTimeout(()=>{
+          modalTitle.textContent = "Carta final";
+          modalText.textContent = FINAL_LETTER;
+          modalSign.textContent = "";
+        }, 450);
+      }
+    });
+    grid.appendChild(div);
+  }
+}
+render();
+
+document.getElementById("openNext").addEventListener("click", ()=>{
+  if(nextIndex >= 14){
+    showToast("Ya las abriste todas 💗");
+    modalTitle.textContent = "Carta final";
+    modalText.textContent = FINAL_LETTER;
+    modalSign.textContent = "";
+    modalWrap.classList.add("show");
+    modalWrap.setAttribute("aria-hidden", "false");
+    return;
+  }
+  const idx = nextIndex;
+  opened.add(idx);
+  nextIndex++;
+  badgeRight.textContent = `${opened.size}/14 abiertas`;
+  showToast(`💌 Carta ${idx+1}`);
+  burstAtCenter(24);
+  render();
+  openModal(`Carta ${idx+1}`, POEMS[idx]);
+  if(opened.size === 14){
+    setTimeout(()=>{
+      modalTitle.textContent = "Carta final";
+      modalText.textContent = FINAL_LETTER;
+      modalSign.textContent = "";
+    }, 450);
+  }
+});
+
+/* ===== Hearts FX ===== */
+const canvas = document.getElementById("fx");
+const ctx = canvas.getContext("2d", { alpha:true });
+let W=0,H=0,DPR=1;
+
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = canvas.clientWidth = canvas.parentElement.clientWidth;
+  H = canvas.clientHeight = canvas.parentElement.clientHeight;
+  canvas.width = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+const palette = ["#ff2d55","#ff7aa2","#ff4f79","#ffd166","#ff8fab","#ffb3c7"];
+const parts = [];
+let running = false;
+let last = performance.now();
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function drawHeart(x,y,s,rot,color,alpha){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+  ctx.scale(s,s);
+  ctx.beginPath();
+  ctx.moveTo(0, -8);
+  ctx.bezierCurveTo(8, -14, 16, -2, 0, 16);
+  ctx.bezierCurveTo(-16, -2, -8, -14, 0, -8);
+  ctx.closePath();
+  const g = ctx.createRadialGradient(-3,-6,2, 0,0,20);
+  g.addColorStop(0, "rgba(255,255,255,.55)");
+  g.addColorStop(0.35, color);
+  g.addColorStop(1, "rgba(0,0,0,.12)");
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+}
+
+function spawn(x,y,power=1){
+  parts.push({
+    x,y,
+    vx: rand(-45,45)*power,
+    vy: rand(-240,-120)*power,
+    g: rand(320,520),
+    s: rand(0.55,1.05),
+    r: rand(0,6.28),
+    spin: rand(-2,2),
+    a: rand(0.65,0.95),
+    c: palette[(Math.random()*palette.length)|0],
+    life: rand(1.0,1.8),
+  });
+  if(parts.length > 360) parts.splice(0, parts.length-360);
+}
+
+function burst(x,y,n=28){
+  for(let i=0;i<n;i++) spawn(x,y, rand(0.75,1.2));
+}
+
+function startLoop(){
+  if(running) return;
+  running = true;
+  requestAnimationFrame(loop);
+}
+
+function loop(t){
+  const dt = Math.min(0.03, (t-last)/1000);
+  last = t;
+  ctx.clearRect(0,0,W,H);
+
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  const glow = ctx.createRadialGradient(W*0.5,H*0.35,20, W*0.5,H*0.35, Math.min(W,H)*0.62);
+  glow.addColorStop(0,"rgba(255,255,255,.65)");
+  glow.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  for(let i=parts.length-1;i>=0;i--){
+    const p = parts[i];
+    p.life -= dt;
+    p.vy += p.g*dt;
+    p.x += p.vx*dt;
+    p.y += p.vy*dt;
+    p.r += p.spin*dt;
+    drawHeart(p.x,p.y,p.s,p.r,p.c,p.a);
+    if(p.life<=0 || p.y>H+140 || p.x<-140 || p.x>W+140) parts.splice(i,1);
+  }
+
+  if(running) requestAnimationFrame(loop);
+}
+startLoop();
+
+function burstAtCenter(n=22){
+  burst(W*0.5, H*0.45, n);
+}
+
+document.getElementById("burstBtn").addEventListener("click", ()=> burstAtCenter(55));
+
+document.addEventListener("click", (e)=>{
+  const r = canvas.getBoundingClientRect();
+  burst(e.clientX - r.left, e.clientY - r.top, 14);
+});
+
+showToast("💘 Abre una carta");
+</script>
+</body>
+</html>
+
